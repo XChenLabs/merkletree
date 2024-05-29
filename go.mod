@@ -1,4 +1,4 @@
-module github.com/Xuesong-Arthur-Chen/merkletree
+module github.com/XChenLabs/merkletree
 
 go 1.21.8
 
