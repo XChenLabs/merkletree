@@ -28,12 +28,22 @@ func TestDigit(t *testing.T) {
 			t.Error("should include: ", lh)
 		}
 	}
+	hashAlgo := sha3.NewLegacyKeccak256()
+	otherHash := hashAlgo.Sum([]byte{byte('A')})
+	if mt.IsIncluded(Hash(otherHash)) {
+		t.Error("should NOT include: ", otherHash)
+	}
 	for _, lh := range leafHashes {
 		proof, err := mt.GetProof(lh)
 		checkErr(err, t)
 		if !Verify(proof, root, lh) {
 			t.Error("verify fails for leaf: ", lh)
 		}
+	}
+	proof, err := mt.GetProof(leafHashes[2])
+	checkErr(err, t)
+	if Verify(proof, Hash(otherHash), leafHashes[2]) {
+		t.Error("should not verify for leaf and root: ", leafHashes[2], otherHash)
 	}
 }
 
@@ -58,11 +68,21 @@ func TestChar(t *testing.T) {
 			t.Error("should include: ", lh)
 		}
 	}
+	hashAlgo := sha3.NewLegacyKeccak256()
+	otherHash := hashAlgo.Sum([]byte{byte('6')})
+	if mt.IsIncluded(Hash(otherHash)) {
+		t.Error("should NOT include: ", otherHash)
+	}
 	for _, lh := range leafHashes {
 		proof, err := mt.GetProof(lh)
 		checkErr(err, t)
 		if !Verify(proof, root, lh) {
 			t.Error("verify fails for leaf: ", lh)
 		}
+	}
+	proof, err := mt.GetProof(leafHashes[3])
+	checkErr(err, t)
+	if Verify(proof, Hash(otherHash), leafHashes[3]) {
+		t.Error("should not verify for leaf and root: ", leafHashes[3], otherHash)
 	}
 }
