@@ -109,13 +109,12 @@ func (mt *MerkleTree) GetProof(leafHash Hash) ([]Hash, error) {
 }
 
 func sibling(index, length int) int {
-	if length%2 == 1 && index == length-1 {
-		return index
-	}
-	if index%2 == 0 {
+	if index%2 == 1 {
+		return index - 1
+	} else if index != length-1 {
 		return index + 1
 	}
-	return index - 1
+	return index
 }
 
 func ProcessProof(proof []Hash, leaf Hash) Hash {
