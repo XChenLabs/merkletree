@@ -28,11 +28,28 @@ func TestDigit(t *testing.T) {
 			t.Error("should include: ", lh)
 		}
 	}
+
 	hashAlgo := sha3.NewLegacyKeccak256()
-	otherHash := hashAlgo.Sum([]byte{byte('A')})
-	if mt.IsIncluded(Hash(otherHash)) {
-		t.Error("should NOT include: ", otherHash)
+	otherHash := Hash(hashAlgo.Sum([]byte{byte('A')}))
+	if mt.IsIncluded(otherHash) {
+		t.Error("should NOT include leaf hash: ", otherHash)
 	}
+
+	reverseLeafHashes := make([]Hash, 0)
+	for d := '9'; d >= '0'; d-- {
+		hashAlgo := sha3.NewLegacyKeccak256()
+		hashAlgo.Write([]byte{byte(d)})
+		reverseLeafHashes = append(reverseLeafHashes, Hash(hashAlgo.Sum(nil)))
+	}
+	reverseMt, err := NewMerkleTree(reverseLeafHashes)
+	checkErr(err, t)
+	reverseRoot := reverseMt.RootHash()
+	t.Log("reverse root hash: ", reverseRoot)
+
+	if root == reverseRoot {
+		t.Error("root should not be same as reverse root")
+	}
+
 	for _, lh := range leafHashes {
 		proof, err := mt.GetProof(lh)
 		checkErr(err, t)
@@ -40,10 +57,11 @@ func TestDigit(t *testing.T) {
 			t.Error("verify fails for leaf: ", lh)
 		}
 	}
+
 	proof, err := mt.GetProof(leafHashes[2])
 	checkErr(err, t)
-	if Verify(proof, Hash(otherHash), leafHashes[2]) {
-		t.Error("should not verify for leaf and root: ", leafHashes[2], otherHash)
+	if Verify(proof, Hash(reverseRoot), leafHashes[2]) {
+		t.Error("should not verify for leaf and root: ", leafHashes[2], reverseRoot)
 	}
 }
 
@@ -84,5 +102,9 @@ func TestChar(t *testing.T) {
 	checkErr(err, t)
 	if Verify(proof, Hash(otherHash), leafHashes[3]) {
 		t.Error("should not verify for leaf and root: ", leafHashes[3], otherHash)
+	}
+
+	if !Verify(proof[1:], root, CommutativeHash(leafHashes[3], proof[0])) {
+		t.Error("should verify: leaf proof[0]: ", leafHashes[3], proof[0])
 	}
 }
