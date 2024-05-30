@@ -28,18 +28,22 @@ func CompareHash(a, b Hash) int {
 	return 0
 }
 
+var hasher = sha3.NewLegacyKeccak256()
+
 func CommutativeHash(a, b Hash) Hash {
-	hashAlgo := sha3.NewLegacyKeccak256()
 	if CompareHash(a, b) < 0 {
-		hashAlgo.Write(a[:])
-		hashAlgo.Write(b[:])
+		hasher.Write(a[:])
+		hasher.Write(b[:])
 	} else {
-		hashAlgo.Write(b[:])
-		hashAlgo.Write(a[:])
+		hasher.Write(b[:])
+		hasher.Write(a[:])
 	}
-	return Hash(hashAlgo.Sum(nil))
+	ret := hasher.Sum(nil)
+	hasher.Reset()
+	return Hash(ret)
 }
 
+// memory allocation can be further optimised
 func NewMerkleTree(leaveHashes []Hash) (*MerkleTree, error) {
 	if len(leaveHashes) == 0 {
 		return nil, ErrEmptyLeafArray
