@@ -17,8 +17,9 @@ var ErrDuplicateLeaves = errors.New("duplicate leaf hash values")
 var ErrEmptyLeafArray = errors.New("empty leaf hash array")
 var ErrLeafNotExist = errors.New("leaf not exist")
 
+// use little endian to compare hash values
 func CompareHash(a, b Hash) int {
-	for i := 0; i < 32; i++ {
+	for i := 31; i >= 0; i-- {
 		if a[i] > b[i] {
 			return 1
 		} else if a[i] < b[i] {
