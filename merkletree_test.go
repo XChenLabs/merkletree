@@ -17,7 +17,7 @@ func TestDigit(t *testing.T) {
 	for d := '0'; d <= '9'; d++ {
 		hashAlgo := sha3.NewLegacyKeccak256()
 		hashAlgo.Write([]byte{byte(d)})
-		leafHashes = append(leafHashes, Hash(hashAlgo.Sum(nil)))
+		leafHashes = append(leafHashes, *(*Hash)(hashAlgo.Sum(nil)))
 	}
 	mt, err := NewMerkleTree(leafHashes)
 	checkErr(err, t)
@@ -30,7 +30,7 @@ func TestDigit(t *testing.T) {
 	}
 
 	hashAlgo := sha3.NewLegacyKeccak256()
-	otherHash := Hash(hashAlgo.Sum([]byte{byte('A')}))
+	otherHash := *(*Hash)(hashAlgo.Sum([]byte{byte('A')}))
 	if mt.IsIncluded(otherHash) {
 		t.Error("should NOT include leaf hash: ", otherHash)
 	}
@@ -39,7 +39,7 @@ func TestDigit(t *testing.T) {
 	for d := '9'; d >= '0'; d-- {
 		hashAlgo := sha3.NewLegacyKeccak256()
 		hashAlgo.Write([]byte{byte(d)})
-		reverseLeafHashes = append(reverseLeafHashes, Hash(hashAlgo.Sum(nil)))
+		reverseLeafHashes = append(reverseLeafHashes, *(*Hash)(hashAlgo.Sum(nil)))
 	}
 	reverseMt, err := NewMerkleTree(reverseLeafHashes)
 	checkErr(err, t)
@@ -70,12 +70,12 @@ func TestChar(t *testing.T) {
 	for d := 'a'; d <= 'z'; d++ {
 		hashAlgo := sha3.NewLegacyKeccak256()
 		hashAlgo.Write([]byte{byte(d)})
-		leafHashes = append(leafHashes, Hash(hashAlgo.Sum(nil)))
+		leafHashes = append(leafHashes, *(*Hash)(hashAlgo.Sum(nil)))
 	}
 	for d := 'A'; d <= 'Z'; d++ {
 		hashAlgo := sha3.NewLegacyKeccak256()
 		hashAlgo.Write([]byte{byte(d)})
-		leafHashes = append(leafHashes, Hash(hashAlgo.Sum(nil)))
+		leafHashes = append(leafHashes, *(*Hash)(hashAlgo.Sum(nil)))
 	}
 	mt, err := NewMerkleTree(leafHashes)
 	checkErr(err, t)
@@ -88,7 +88,7 @@ func TestChar(t *testing.T) {
 	}
 	hashAlgo := sha3.NewLegacyKeccak256()
 	otherHash := hashAlgo.Sum([]byte{byte('6')})
-	if mt.IsIncluded(Hash(otherHash)) {
+	if mt.IsIncluded(*(*Hash)(otherHash)) {
 		t.Error("should NOT include: ", otherHash)
 	}
 	for _, lh := range leafHashes {
@@ -100,7 +100,7 @@ func TestChar(t *testing.T) {
 	}
 	proof, err := mt.GetProof(leafHashes[3])
 	checkErr(err, t)
-	if Verify(proof, Hash(otherHash), leafHashes[3]) {
+	if Verify(proof, *(*Hash)(otherHash), leafHashes[3]) {
 		t.Error("should not verify for leaf and root: ", leafHashes[3], otherHash)
 	}
 

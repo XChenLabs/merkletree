@@ -1,6 +1,6 @@
 module github.com/XChenLabs/merkletree
 
-go 1.21.8
+go 1.19
 
 require (
 	golang.org/x/crypto v0.23.0

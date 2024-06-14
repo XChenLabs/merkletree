@@ -41,7 +41,7 @@ func CommutativeHash(a, b Hash) Hash {
 	}
 	ret := hasher.Sum(nil)
 	hasher.Reset()
-	return Hash(ret)
+	return *(*Hash)(ret)
 }
 
 // memory allocation can be further optimised
